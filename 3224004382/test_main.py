@@ -71,6 +71,26 @@ class TestPlagiarism(unittest.TestCase):
         finally:
             os.remove(path)
 
+    def test_long_text_sample(self):
+        """
+        集成测试：使用老师下发的长文本测试样例
+        验证程序在真实长文本下的表现，要求相似度在合理区间内
+        """
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        orig_path = os.path.join(base_dir, "samples", "orig.txt")
+        copy_path = os.path.join(base_dir, "samples", "orig_0.8_add.txt")
+
+        if not os.path.exists(orig_path) or not os.path.exists(copy_path):
+            self.skipTest("长文本样例未下载，跳过集成测试")
+
+        original_text = read_file(orig_path)
+        copied_text = read_file(copy_path)
+        score = cosine_similarity(original_text, copied_text, n=2)
+
+        self.assertGreater(score, 0.7)
+        self.assertLess(score, 0.99)
+        print(f"\n长文本样例相似度: {score:.4f}")
 
 if __name__ == "__main__":
     unittest.main()
